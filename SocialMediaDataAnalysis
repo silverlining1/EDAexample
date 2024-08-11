@@ -1,0 +1,128 @@
+!pip install pandas
+!pip install matplotlib
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from collections import Counter
+
+# Comment this if the data visualisations doesn't work on your side
+%matplotlib inline
+
+plt.style.use('bmh')
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Comment this if the data visualisations doesn't work on your side
+%matplotlib inline
+plt.style.use('bmh')
+
+def load_data(file_path):
+    """Load Facebook video data from a CSV file."""
+    return pd.read_csv(file_path)
+
+def clean_data(df):
+    """Clean and prepare the loaded data."""
+    print("Columns in the dataset:", df.columns.tolist())
+    print(f"Initial number of rows: {len(df)}")
+    
+    # Convert 'Publish time' to datetime
+    df['Publish time'] = pd.to_datetime(df['Publish time'], errors='coerce')
+    
+    # Convert 'Duration (sec)' to numeric, handling any non-numeric values
+    df['Duration (sec)'] = pd.to_numeric(df['Duration (sec)'], errors='coerce')
+    
+    # Remove any rows with missing values in key columns
+    df = df.dropna(subset=['Video asset ID', 'Publish time', 'Duration (sec)', 'Page name'])
+    print(f"Number of rows after removing missing values: {len(df)}")
+    
+    # Remove duplicates based on 'Video asset ID'
+    df = df.drop_duplicates(subset=['Video asset ID'])
+    print(f"Final number of rows after removing duplicates: {len(df)}")
+    
+    return df
+
+def analyze_data(df):
+    """Perform analysis on the video data."""
+    # Videos per day
+    videos_per_day = df.groupby(df['Publish time'].dt.date).size()
+    
+    # Average duration
+    avg_duration = df['Duration (sec)'].mean()
+    
+    # Distribution of video durations
+    duration_stats = df['Duration (sec)'].describe()
+    
+    # Most active pages
+    top_pages = df['Page name'].value_counts().head(10)
+    
+    return videos_per_day, avg_duration, duration_stats, top_pages
+
+def visualize_data(df, videos_per_day, top_pages):
+    """Create visualizations of the analyzed data using Seaborn."""
+    if not videos_per_day.empty:
+        # Plot videos per day
+        plt.figure(figsize=(12, 6))
+        sns.lineplot(x=videos_per_day.index, y=videos_per_day.values)
+        plt.title('Videos Published per Day')
+        plt.xlabel('Date')
+        plt.ylabel('Number of Videos')
+        plt.savefig('videos_per_day.png')
+        plt.close()
+    else:
+        print("No data available for videos per day plot.")
+    
+    if not df['Duration (sec)'].empty:
+        # Plot distribution of video durations
+        plt.figure(figsize=(10, 6))
+        sns.distplot(df['Duration (sec)'], kde=True, hist=True)
+        plt.title('Distribution of Video Durations')
+        plt.xlabel('Duration (seconds)')
+        plt.ylabel('Density')
+        plt.savefig('duration_distribution.png')
+        plt.close()
+    else:
+        print("No data available for duration distribution plot.")
+    
+    if not top_pages.empty:
+        # Plot top pages by video count
+        plt.figure(figsize=(12, 6))
+        sns.barplot(x=top_pages.values, y=top_pages.index)
+        plt.title('Top 10 Pages by Number of Videos')
+        plt.xlabel('Number of Videos')
+        plt.ylabel('Page Name')
+        plt.savefig('top_pages.png')
+        plt.close()
+    else:
+        print("No data available for top pages plot.")
+
+def main():
+    # Load data
+    df = load_data('facebook_data.csv')
+    
+    # Clean data
+    cleaned_df = clean_data(df)
+    
+    if cleaned_df.empty:
+        print("No data available after cleaning. Please check your CSV file.")
+        return
+    
+    # Analyze data
+    videos_per_day, avg_duration, duration_stats, top_pages = analyze_data(cleaned_df)
+    
+    # Visualize data
+    visualize_data(cleaned_df, videos_per_day, top_pages)
+    
+    # Print results
+    print("\nAnalysis Results:")
+    print(f"Total number of videos: {len(cleaned_df)}")
+    print(f"Average video duration: {avg_duration:.2f} seconds")
+    print("\nVideo Duration Statistics:")
+    print(duration_stats)
+    print("\nTop 10 Pages by Number of Videos:")
+    print(top_pages)
+
+if __name__ == "__main__":
+    main()
