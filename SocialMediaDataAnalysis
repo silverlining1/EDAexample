@@ -11,14 +11,6 @@ from collections import Counter
 
 plt.style.use('bmh')
 
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-# Comment this if the data visualisations doesn't work on your side
-%matplotlib inline
-plt.style.use('bmh')
-
 def load_data(file_path):
     """Load Facebook video data from a CSV file."""
     return pd.read_csv(file_path)
