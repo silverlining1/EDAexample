@@ -2,17 +2,22 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+.eggs/
 dist/
 build/
+*.egg
 .venv/
-env/
 venv/
+env/
 
 # Environment
 .env
 
-# Outputs (generated files)
+# Outputs (generated at runtime)
 outputs/
+reports/
+*.png
+*.pdf
 
 # Jupyter
 .ipynb_checkpoints/
@@ -21,3 +26,8 @@ outputs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/

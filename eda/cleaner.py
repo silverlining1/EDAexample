@@ -27,7 +27,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     logger.info(f"Starting cleaning — {initial_rows:,} rows")
 
     # Strip whitespace from all string columns
-    str_cols = df.select_dtypes(include="object").columns
+    str_cols = df.select_dtypes(include=["object", "str"]).columns
     df[str_cols] = df[str_cols].apply(lambda col: col.str.strip())
 
     # Convert date column
